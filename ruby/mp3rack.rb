@@ -1,35 +1,18 @@
 require 'rack'
 require 'rack/server'
-
-class MP3Unit
-  def initialize(app, request_line)
-    /\/(?<command>\w+)(?<cmdpath>\/.*)$/ =~ request_line
-    @command = command
-    @cmdpath = cmdpath
-    @app     = app
-    puts "Command: #{@command}. Path: #{@cmdpath} (Original request_line is '#{request_line}')"
-  end
-  
-  def response
-    msg = "Hello World"
-    if @command == 'play'
-      finalpath = @app.webroot + @cmdpath
-      msg << " - did you ask for #{finalpath} ?"
-    end
-    
-    ['200', {}, [ msg ]]
-  end
-end
+require './mp3innards'
 
 
 class MP3Server
-  attr_reader :webroot
+  attr_reader :webroot, :playlist
   
   def initialize args
     args.each do |k,v|
       instance_variable_set("@#{k}", v) unless v.nil?
     end
-    puts self.inspect
+    
+    @playlist = Playlist.new(@webroot)
+    #puts self.inspect
   end
     
     
@@ -37,7 +20,7 @@ class MP3Server
     request = Rack::Request.new env
     request_line = request.env['REQUEST_PATH']
     
-    unit = MP3Unit.new(self, request_line)
+    unit = Commander.new(self, request_line)
     unit.response
   end
 end
