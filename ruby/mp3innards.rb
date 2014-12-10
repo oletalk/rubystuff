@@ -1,14 +1,18 @@
 require 'find'
 require 'uri'
+require './mp3data'
 
-LIST_HEADER = '<h2>Song listing</h2>'
+LIST_HEADER = '<h2>Song listing</h2><p><a href="drop">Playlist</a></p>'
+M3U_HEADER = "#EXTM3U\n"
 BR = '<br/>'
+CR = "\n"
 RC_OK = '200'
 RC_NOT_FOUND = '404'
 
 class Commander
-  def initialize(app, request_line)
+  def initialize(app, request_line, http_host)
     /\/(?<command>\w+)(?<cmdpath>\/.*)$/ =~ request_line
+	@http_host = http_host
     @command = command
     @cmdpath = cmdpath
     @app     = app
@@ -30,6 +34,9 @@ class Commander
     elsif @command == 'list'
       puts @app.playlist.paths(nil).inspect
       msg = LIST_HEADER + @app.playlist.paths('playurl').join(BR)
+	elsif @command == 'drop'
+	  @headers['Content-Type'] = 'text/plain'
+	  msg = M3U_HEADER + @app.playlist.paths('m3u', @http_host).join(CR);
     end
     if @command != 'play'
       puts msg
@@ -52,23 +59,6 @@ class Commander
   end
 end
 
-class Song
-  attr_reader :realpath
-
-  def initialize(webpath, realpath)
-    @webpath = webpath
-    @realpath = realpath
-  end
-    
-  def webpath(options)
-    if (options == 'playurl')
-      '<a href="/play' + @webpath + '">' + @webpath + '</a>'
-    else
-      @webpath
-    end
-  end
-end
-
 class Playlist
   def initialize(webroot)
     @webroot = webroot
@@ -87,8 +77,8 @@ class Playlist
     end
   end
   
-  def paths(options)
-    @mp3s.collect { |x| x.webpath(options) }
+  def paths(*options)
+    @mp3s.collect { |x| x.webpath(*options) }
   end
   
   def size
