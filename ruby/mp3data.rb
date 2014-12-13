@@ -20,10 +20,10 @@ class Song
     if type == 'playurl'
       '<a href="/play' + @webpath + '">' + @webpath + '</a>'
 	elsif type == 'm3u'
-# TODO: unhardcode these
-		artist = @tag.artist || 'Artist'
-		title = @tag.title || 'Title'
-		taginfo = "#{artist} - #{title}"
+		artist = @tag.artist.to_s == '' ? 'Artist' : @tag.artist
+		title =  @tag.title.to_s == '' ? @webpath.sub(/^\//, "") : @tag.title
+		taginfo = "#{artist} - #{title}"  # FIXME: some of the mp3s still return empty strings here
+		taginfo = title if artist == 'Artist'
 
 		artist.strip!
 		title.strip!
@@ -40,6 +40,12 @@ class Tag
 	attr_accessor :artist, :title, :length
 
 	def initialize(filepath)
+		get_tags(filepath) if filepath.downcase.end_with?("mp3")
+		puts self.inspect
+	end
+
+	private
+	def get_tags(filepath)
 		mp3file = File.open(filepath)
 		tag = ID3Tag.read(mp3file)
 
@@ -52,9 +58,9 @@ class Tag
 	  unless (tlen_frame.nil? || tlen_frame.content.nil?)
 			@length = tlen_frame.content.to_i / 1000
 		end
-
 		@artist.strip! unless @artist.nil?
 		@title.strip! unless @title.nil?
-		puts self.inspect
+
 	end
+
 end

@@ -26,4 +26,4 @@ class MP3Server
   end
 end
 
-Rack::Server.start( :app => MP3Server.new( webroot: '/opt/gulfport/mp3/ripped' ), :Port => 2345 )
+Rack::Server.start( :app => MP3Server.new( webroot: '/opt/gulfport/mp3/napshare' ), :Port => 2345 )
