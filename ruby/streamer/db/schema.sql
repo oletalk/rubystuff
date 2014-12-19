@@ -6,4 +6,5 @@ CREATE TABLE mp3song (
 		artist varchar(255) null,
 		title varchar(500) null,
 		secs smallint not null default -1
+		last_updated timestamp not null default now()
 );

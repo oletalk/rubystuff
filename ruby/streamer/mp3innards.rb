@@ -1,6 +1,7 @@
 require 'find'
 require 'uri'
 require './mp3data'
+require './log'
 
 LIST_HEADER = '<h2>Song listing</h2><p><a href="drop">Playlist</a></p>'
 M3U_HEADER = "#EXTM3U\n"
@@ -10,7 +11,12 @@ RC_OK = '200'
 RC_NOT_FOUND = '404'
 
 class Commander
-  def initialize(app, request_line, http_host)
+  def initialize(app, request_obj)
+
+	# we just want these headers from the request
+	request_line = request_obj.env['REQUEST_PATH']
+	http_host    = request_obj.env['HTTP_HOST']
+	
     /\/(?<command>\w+)(?<cmdpath>\/.*)$/ =~ request_line
 	@http_host = http_host
     @command = command
@@ -18,28 +24,26 @@ class Commander
     @app     = app
     @returncode = RC_OK
     @headers = {'Content-Type' => 'text/html'}
-    puts "Command: #{@command}. Path: #{@cmdpath} (Original request_line is '#{request_line}')"
+    $LOG.info "Command: #{@command}. Path: #{@cmdpath} (Original request_line is '#{request_line}')"
   end
   
   def response
     msg = "Hello World"
     @returncode = RC_OK
     
-    #TODO: msg = Responder.new(@command, @cmdpath).response
-    # looks like they may have to return all three elements (see bottom of this method)
     if @command == 'play'
       @headers['Content-Type'] = 'application/octet-stream; charset=utf8'
       # TODO: don't cache anything
       msg = contents_from_cmdpath
     elsif @command == 'list'
-      puts @app.playlist.paths(nil).inspect
+      $LOG.debug @app.playlist.paths(nil).inspect
       msg = LIST_HEADER + @app.playlist.paths('playurl').join(BR)
 	elsif @command == 'drop'
 	  @headers['Content-Type'] = 'text/plain'
 	  msg = M3U_HEADER + @app.playlist.paths('m3u', @http_host).join(CR);
     end
     if @command != 'play'
-      puts msg
+      $LOG.info msg
     end
     
     [ @returncode, @headers, [ msg ]]
@@ -51,7 +55,7 @@ class Commander
     begin
       IO.read(finalpath)
     rescue Errno::ENOENT
-      puts "Given path #{finalpath} was not found"
+      $LOG.warn "Given path #{finalpath} was not found"
       @returncode = RC_NOT_FOUND
       @headers['Content-Type'] = 'text/html'
       "File not found"

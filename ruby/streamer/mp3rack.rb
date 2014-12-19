@@ -18,10 +18,10 @@ class MP3Server
     
   def call(env)
     request = Rack::Request.new env
-    request_line = request.env['REQUEST_PATH']
-	request_host = request.env['HTTP_HOST']
-    
-    unit = Commander.new(self, request_line, request_host)
+	puts request.inspect
+    # TODO: only clients we've allowed
+
+    unit = Commander.new(self, request)
     unit.response
   end
 end

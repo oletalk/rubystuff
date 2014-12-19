@@ -1,5 +1,5 @@
 require 'pg'
-require './conf/db'
+require './conf/default'
 
 class DB
 

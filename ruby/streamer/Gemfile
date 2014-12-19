@@ -1,0 +1,6 @@
+# Gemfile for mp3 server
+source "https://rubygems.org"
+
+gem 'id3tag', '>= 0.8.0'
+gem 'rack', '>= 1.5.2'
+gem 'pg', '>= 0.17.1'
