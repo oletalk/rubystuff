@@ -1,9 +1,12 @@
 require 'rack'
 require 'rack/server'
 require './mp3innards'
+require './mp3screener'
+require './mp3const'
 
 
 class MP3Server
+	include Screener, Responses
   attr_reader :webroot, :playlist
   
   def initialize args
@@ -19,10 +22,16 @@ class MP3Server
   def call(env)
     request = Rack::Request.new env
 	puts request.inspect
-    # TODO: only clients we've allowed
-
-    unit = Commander.new(self, request)
-    unit.response
+    # TODO: can we have a nil remote_ip here??
+		remote_ip = request.env['REMOTE_ADDR']
+		check_remote_ip(remote_ip)
+		if ip_allowed?
+			unit = Commander.new(self, request)
+			unit.response
+		else
+			# forbidden!
+			return_forbidden
+		end
   end
 end
 

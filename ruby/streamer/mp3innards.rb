@@ -11,6 +11,7 @@ RC_OK = '200'
 RC_NOT_FOUND = '404'
 
 class Commander
+
   def initialize(app, request_obj)
 
 	# we just want these headers from the request
@@ -49,10 +50,20 @@ class Commander
     [ @returncode, @headers, [ msg ]]
   end
   
+#def return_not_found
+#[ '404', { 'Content-Type' => 'text/html' }, [ '<h3>404 Not Found</h3>' ] ]
+#end
+
+	def return_forbidden
+ 		[ '403', { 'Content-Type' => 'text/html' }, [ '<h3>403 Forbidden</h3>' ] ]
+	end
+
+	
   private
   def contents_from_cmdpath()
     finalpath = @app.webroot + URI.unescape(@cmdpath)
     begin
+		# TODO: need to downsample if @app.downsampling? is true
       IO.read(finalpath)
     rescue Errno::ENOENT
       $LOG.warn "Given path #{finalpath} was not found"
@@ -61,6 +72,7 @@ class Commander
       "File not found"
     end
   end
+
 end
 
 class Playlist
@@ -88,4 +100,5 @@ class Playlist
   def size
     @mp3s.size
   end
+
 end
