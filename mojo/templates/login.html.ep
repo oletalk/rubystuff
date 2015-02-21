@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+    <head>
+    </head>
+    <body>
+        <form id="loginform" method="POST" action="login">
+            <table>
+                <tr>
+                    <td>Username: </td><td><input name="username" /></td>
+                </tr>
+                <tr>
+                    <td>Password:</td><td><input type="password" name="password" /></td>
+                </tr>
+            </table>
+            <input type="submit" />
+        </form>
+    </body>
+</html>
