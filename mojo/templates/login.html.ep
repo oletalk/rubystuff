@@ -3,6 +3,7 @@
     <head>
     </head>
     <body>
+        <div class="error_message"><%= stash 'errormessage' %></div>
         <form id="loginform" method="POST" action="login">
             <table>
                 <tr>
