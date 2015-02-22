@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+    <head>
+    </head>
+    <body>
+        <div class="error_message"><%= stash 'errormessage' %></div>
+        <form id="loginform" method="POST" action="login">
+            <table>
+                <tr>
+                    <td>Username: </td><td><input name="username" /></td>
+                </tr>
+                <tr>
+                    <td>Password:</td><td><input type="password" name="password" /></td>
+                </tr>
+            </table>
+            <input type="submit" />
+        </form>
+    </body>
+</html>
